@@ -62,7 +62,7 @@ const targetCurrency = document.getElementById('target-currency') as HTMLSelectE
 const conversionResult = document.getElementById('conversion-result') as HTMLParagraphElement;
 
 // A global variable that stores the conversion rates for each currency pair as an array of arrays
-const conversionRates: [string, string, number][] = [];
+// const conversionRates: [string, string, number][] = [];
 
 // A constant that stores the API key for authentication
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -82,21 +82,20 @@ fetchWrapper.get('USD')
     console.error('Error fetching data:', error);
   });
 
-  
+// Assign the conversion_rates property of the response data to the rates variable and return the rates object
 async function getConversionRates(base: string) {
   try {
     const data = await fetchWrapper.get(base);
-    
-    // Assign the conversion_rates property of the response data to the rates variable
     const rates = data.conversion_rates;
-    
+
+    if (!rates) {
+      throw new Error('No conversion rates available');
+    }
     console.log(`Conversion rates for ${base}:`, rates);
-    
-    // Return the rates object
     return rates;
   } catch (error) {
     console.error('Error fetching data:', error);
-    return {}; 
+    return {}; // return empty object if there's an error
   }
 }
 
@@ -118,10 +117,11 @@ function updateConversionResult() {
     .then((rates) => {
       if (rates && rates[target]) {
         const conversionRate = rates[target];
-        conversionResult.textContent = conversionRate.toFixed(4);  // Display up to 4 decimal places
+        conversionResult.textContent = conversionRate.toFixed(4);  // 4 decimal places
       } else {
         conversionResult.textContent = "Rate not available";
       }
     });
 }
 
+updateConversionResult();
